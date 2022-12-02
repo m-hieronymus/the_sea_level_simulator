@@ -1,0 +1,75 @@
+      d.                              d.                                 .d
+    .d$$   `s.                      .d$$                                 $$d.
+.,s$$$$$    `$b                 .,s$$$$$     MgR!            .s          $$$$b.
+`"э$$$$$     Y$b    d           `"э$$$$$                 .,s$$$          $$$$P'
+ ,` `Y$$     l$$b  d'     `s.       `Y$$                 `"э$P`          $$Y`
+.     Y$    .d$$$ .P       `$b        Y$       sэ`'s.    ,$.   $         $Y
+ s    l$ .sэ`$$$$ lb        Y$b  э``э l$ ,.       l$`s.,s$$$b  $      ., $l
+  ` ' d$    ,$$$P `Y.     .sl$$b      d$  `'эs.   d$'` `'эS$P d$  .sэ'`  $d
+    ,d$$   ,$$$$l  `э. ,sэ` d$$$.   ,d$$      `b d$$        ,d$$ d`      $$d,
+.,s$$$$$ .d$$$$$'           $$$$b d$$$$$       $ $$$    .,s$$$$$ $       $$$$b.
+`"э$$$$$ `"э$$P'           d$$$$P `S$$$$      ,P $$$    `"э$$$$$ `Y.     $$$$P'
+    `Y$$     Y            d$$$$$'   `Y$$    .sP' Y$$        `Y$$  `Ys.   $$Y`
+      $'               .s$$$$$$`      $' .s$$P'   $'          $'   `Y$$s.'$
+                      `"э$$$$P'         `"э$$'                      `$$э"`
+                          `$'               `                        `
+
+
+ кФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФП
+ Г                                                                            Г
+ Г                              Proudly Presents:                             Г
+ Г                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                 Г
+ Г                              The sea level simulator v1.0                  Г
+ Г                              (c) None at all                               Г
+ Г                                                                            Г
+ РФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФФй
+
+
+
+Guide to set-up a simulations:
+1) a) Edit meanseadists.m with new SSPXXX that define your mean sea level projections (first ten lines of the script).
+ Data is loaded from SSPrises.mat in the Ringhals case containing mean sea level projections. Edit for your location.
+ In the ringhals case these are shifted by 6cm to get into a mean sea level related height system and converted from cm to m.
+ Make sure your values are referenced to the currrent mean sea level and in meters.
+ The Ringhals projections are saved in SSPrises.mat in time x quantile format. The 13 timesteps are 2030:10:2150 and the quantiles
+ are [0.05 0.17 0.5 0.83 0.95]. Edit SkewNorErr.m if you want to use some other quantiles than those used for Ringhals.
+   b) Edit all lines starting with finalparms = fminsearch(@SkewNormErrXX depending on your number of know mean sea level quantiles. 
+   c) Run meanseadists.m and save skn* into distributions.mat
+2) a) Edit emulator_ringhals_par.m to set your resolution with the nr_res variable, and number of iterations with nr_par and nr_iter.
+ Note that the total number of iterations are nr_par*nr_iter
+   b) Set your emission probabilities with the pXX variables
+   c) Edit lines load amax_Ringhals; so that the amaxs variable instead contains the annual maxima time series from your location
+   d) Edit ssh_ext, ssh_mean and ssh_joint with your expectation for the range of extreme, mean and joint sea level within the planning period at your location
+   e) Run once with get_liklihoodCI=1; to save ext_parm_set.mat with your range of GEV parameters; this takes some time
+   f) Set ext_par_uncert to one if you want GEV parameter uncertainty and otherwise to zero
+   g) Run your simulation; the file example.mat containing your data is saved.
+3) An example plot script is included called example_plot.m that generates the same figures that are shown in the GMD manuscript using your example.mat file.
+ This script requires tight_subplot but is easily edited if you prefer to use something else
+
+
+List of files supplied with the sea level simulator v1.0:
+amax_Ringhals.mat: datafile containing annual maxima from Ringhals and neigboring station Varberg
+dContinuous.m: support file part of Cupid package
+dGeneric.m:  support file part of Cupid package
+distributions.mat: mean sea level distributions for Ringhals (you should make your own distribution.mat with meanseadists.m for your location)
+emulator_ringhals_par.m: main script 
+example_plots.m: example plot script; uses the tight_subplot subroutine which can be downloaded from Mathworks, or you can edit to use the normal subplot
+ext_parm_set.mat: Saved GEV parameter distribution for Ringhals (you should make your own file for your location using the emulator_ringhals_par.m script with the parameter get_liklihoodCI==1)
+meanseadists.m: this scripts is used to make your mean sea level distributions 
+Normal.m:  support file part of Cupid package
+SkewNor.m:  support file part of Cupid package
+SkewNormErr_3t.m: : function used by meanseadists.m to minimize difference between discrete and continious mean sea level distributions at 0.05, 0.5 and 0.95 quantiles
+SkewNormErr.m : function used by meanseadists.m to minimize difference between discrete and continious mean sea level distributions at 0.05, 0.17, 0.5, 0.83 and 0.95 quantiles
+SSPrises.mat: File containing mean sea level projections for Ringhals
+tfn.m:  support file part of Cupid package
+
+
+References:
+Hieronymus, M. A yearly maximum sea level simulator and its applications: A Stockholm case study. Ambio 51, 1263–1274 (2022).
+https://doi.org/10.1007/s13280-021-01661-4
+
+Hieronymus, M., Kalén, O. Should Swedish sea level planners worry more about mean sea level rise or sea level extremes?.
+Ambio 51, 2325–2332 (2022). https://doi.org/10.1007/s13280-022-01748-6
+
+Hieronymus, M. The sea level simulator v1.0: a model for integration of mean sea level change and sea level extremes into a joint probabilistic framework.
+Geophysical model development. X-X 202X. doi.orgXXX
