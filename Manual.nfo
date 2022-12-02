@@ -56,7 +56,8 @@ dGeneric.m:  support file part of Cupid package
 distributions.mat: mean sea level distributions for Ringhals (you should make your own distribution.mat with meanseadists.m for your location)
 emulator_ringhals_par.m: main script 
 example_plots.m: example plot script; uses the tight_subplot subroutine which can be downloaded from Mathworks, or you can edit to use the normal subplot
-ext_parm_set.mat: Saved GEV parameter distribution for Ringhals (you should make your own file for your location using the emulator_ringhals_par.m script with the parameter get_liklihoodCI==1)
+ext_parm_set.mat: Saved GEV parameter distribution for Ringhals (you should make your own file for your location using the emulator_ringhals_par.m 
+script with the parameter get_liklihoodCI set to 1)
 meanseadists.m: this scripts is used to make your mean sea level distributions 
 Normal.m:  support file part of Cupid package
 SkewNor.m:  support file part of Cupid package
