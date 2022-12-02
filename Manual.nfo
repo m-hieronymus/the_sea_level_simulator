@@ -39,11 +39,13 @@ Guide to set-up a simulations:
  Note that the total number of iterations are nr_par*nr_iter
    b) Set your emission probabilities with the pXX variables
    c) Edit lines load amax_Ringhals; so that the amaxs variable instead contains the annual maxima time series from your location
-   d) Edit ssh_ext, ssh_mean and ssh_joint with your expectation for the range of extreme, mean and joint sea level within the planning period at your location
+   d) Edit ssh_ext, ssh_mean and ssh_joint with your expectation for the range of extreme, mean and joint sea level within the planning period 
+   at your location
    e) Run once with get_liklihoodCI=1; to save ext_parm_set.mat with your range of GEV parameters; this takes some time
    f) Set ext_par_uncert to one if you want GEV parameter uncertainty and otherwise to zero
    g) Run your simulation; the file example.mat containing your data is saved.
-3) An example plot script is included called example_plot.m that generates the same figures that are shown in the GMD manuscript using your example.mat file.
+3) An example plot script is included called example_plot.m that generates the same figures that are shown in the GMD manuscript using your
+example.mat file.
  This script requires tight_subplot but is easily edited if you prefer to use something else
 
 
@@ -58,8 +60,10 @@ ext_parm_set.mat: Saved GEV parameter distribution for Ringhals (you should make
 meanseadists.m: this scripts is used to make your mean sea level distributions 
 Normal.m:  support file part of Cupid package
 SkewNor.m:  support file part of Cupid package
-SkewNormErr_3t.m: : function used by meanseadists.m to minimize difference between discrete and continious mean sea level distributions at 0.05, 0.5 and 0.95 quantiles
-SkewNormErr.m : function used by meanseadists.m to minimize difference between discrete and continious mean sea level distributions at 0.05, 0.17, 0.5, 0.83 and 0.95 quantiles
+SkewNormErr_3t.m: : function used by meanseadists.m to minimize difference between discrete and continious mean sea level distributions at 
+the 0.05, 0.5 and 0.95 quantiles
+SkewNormErr.m : function used by meanseadists.m to minimize difference between discrete and continious mean sea level distributions at
+the 0.05, 0.17, 0.5, 0.83 and 0.95 quantiles
 SSPrises.mat: File containing mean sea level projections for Ringhals
 tfn.m:  support file part of Cupid package
 
