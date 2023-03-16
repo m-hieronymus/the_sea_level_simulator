@@ -1,27 +1,28 @@
+% More commented version as suggested by Rev1 GMD 
 clear all; close all
 tic
-load distributions
-nr_res=500;
+load distributions  %load mean sea level distributions
+nr_res=500;         %Resolution of mean, extreme and joint sea levels. Boundaries are given below in the definition of ssh_ext, ssh_mean and ssh_joint
 
 get_liklihoodCI=0; % calculate distribution for GEV parameters
 ext_par_uncert=0; %GEV parameters are not known if 1, but their distribution is;parpool([1 100]) 
 nr_iter=1000; %iterations times nr_par
 nr_par=10000; %number of parfor iterations
-p19=0.05;
-p26=0.155;
-p26l=0.01;
-p45=0.5;
-p7=0.22;
-p85=0.064;
-p85l=1-p19-p26-p45-p7-p85-p26l;
+p19=0.05;     % probability of getting SSP1-1.9
+p26=0.155;    % probability of getting SSP1-2.6
+p26l=0.01;    % probability of getting SSP1-2.6 (low confidence)
+p45=0.5;      % probability of getting SSP2-4.5
+p7=0.22;      % probability of getting SSP3-7.0
+p85=0.064;    % probability of getting SSP5-8.5
+p85l=1-p19-p26-p45-p7-p85-p26l;   % SSP5-8.5 gets the remaining probability
 if p85l<0
     disp('p85 cannot be < 0')
     return
 end
 T=[2020 2030 2040 2050 2060 2070 2080 2090 2100 2110 2120 2130 2140 2150];
 t=2020:2150;
-load amax_Ringhals
-[m_paramEsts,m_parmci] = gevfit(amaxs);
+load amax_Ringhals   %loads annual maximum series from location 
+[m_paramEsts,m_parmci] = gevfit(amaxs); %fits GEV distribution to annual maxima time series
     obs_kMLE = m_paramEsts(1);        % Shape parameter
     obs_sigmaMLE = m_paramEsts(2);    % Scale parameter
     obs_muMLE = m_paramEsts(3);       % Location parameter
@@ -29,19 +30,20 @@ x=11:10:140;
 pX=length(x);
 long_n=150;
 
-ssh_ext=linspace(0.3,3.7,nr_res);
+ssh_ext=linspace(0.3,3.7,nr_res);   %vectors containing discrete sea levels axes for mean extreme and joint sea levels
 ssh_mean=linspace(0,12,nr_res);
 ssh_joint=linspace(0,14,nr_res);
 
 
-if get_liklihoodCI==1
+if get_liklihoodCI==1      %brute force algorithm testing all combos of obs_kMLE, obs_sigmaMLE and obs_muMLE in the respective parameters slightly extended 95% percent confidence interval
+                           % It is quite slow, but only needs to be run ones
     probs=0.01:0.01:0.99;
     parms_l=nan(99,3);
     parms_l(:,1)=obs_kMLE;
     parms_l(:,2)=obs_sigmaMLE;
     parms_l(:,3)=obs_muMLE;
     parms_h=parms_l;
-    kk=linspace(m_parmci(1,1)*0.9,m_parmci(2,1)*1.1,long_n);
+    kk=linspace(m_parmci(1,1)*0.9,m_parmci(2,1)*1.1,long_n);   %lower and upper 95% confidence bounds multiplied by 0.9 and 1.1 resp. long_n is the number of discrete sigma, mu and k steps
     sigsig=linspace(m_parmci(1,2)*0.9,m_parmci(2,2)*1.1,long_n);
     mumu=linspace(m_parmci(1,3)*0.9,m_parmci(2,3)*1.1,long_n);
     %Chi squared confidence bounds
@@ -56,11 +58,11 @@ if get_liklihoodCI==1
             for mu=1:long_n
                 if gevlike([kk(k),sigsig(sig),mumu(mu)],amaxs)<o_nllCritVal && gevinv(1-1/1000,kk(k),sigsig(sig),mumu(mu))>highest_ret
                     parms_h(cl,:)=[kk(k),sigsig(sig),mumu(mu)];
-                    highest_ret=gevinv(1-1/1000,kk(k),sigsig(sig),mumu(mu));
+                    highest_ret=gevinv(1-1/1000,kk(k),sigsig(sig),mumu(mu)); %updates highest retlevel for upper bound
                 end
                 if gevlike([kk(k),sigsig(sig),mumu(mu)],amaxs)<o_nllCritVal && gevinv(1-1/1000,kk(k),sigsig(sig),mumu(mu))<lowest_ret
                     parms_l(cl,:)=[kk(k),sigsig(sig),mumu(mu)];
-                    lowest_ret=gevinv(1-1/1000,kk(k),sigsig(sig),mumu(mu));
+                    lowest_ret=gevinv(1-1/1000,kk(k),sigsig(sig),mumu(mu));  %updates lowest retlevel for lower bound
 
                 end
             end
@@ -68,7 +70,7 @@ if get_liklihoodCI==1
     end
    end
    parms=[m_paramEsts;parms_l;parms_h];
-   save ext_parm_set parms
+   save ext_parm_set parms   %save the GEV uncertainty data
 else
     load ext_parm_set
 end
@@ -87,14 +89,14 @@ mean_of_tot=nan(nr_res,pX);
 ext_of_tot=nan(nr_res,pX);
 
 
-for a=1:nr_iter
+for a=1:nr_iter   %outer loop 
     ssh_reached_tmp=nan(nr_par,5,pX);
     probs_tmp=nan(nr_par,3);
-    parfor aa=1:nr_par
+    parfor aa=1:nr_par %inner paralell loop the total amount of simulations is nr_iter*nr_par
        
-    p=rand(3,1);
+    p=rand(3,1);      %draw random numbers for projection, percentile of mean sea level proj and GEV parameter percentile 
     probs_tmp(aa,:)=p;
-    if p(1)>0 && p(1)<p19
+    if p(1)>0 && p(1)<p19    %makes mean sea level projection according to drawn projection and percentile
         mean_sea_coarse=[0,skn19_1.InverseCDF(p(2)),skn19_2.InverseCDF(p(2))...
             ,skn19_3.InverseCDF(p(2)),skn19_4.InverseCDF(p(2)),skn19_5.InverseCDF(p(2))...
             , skn19_6.InverseCDF(p(2)), skn19_7.InverseCDF(p(2)), skn19_8.InverseCDF(p(2)), skn19_9.InverseCDF(p(2)),  skn19_10.InverseCDF(p(2))...
@@ -153,10 +155,10 @@ for a=1:nr_iter
     mean_sea=interp1(T,mean_sea_coarse,t);
     
     if ext_par_uncert==0
-        ext_sea=gevrnd(obs_kMLE,obs_sigmaMLE,obs_muMLE,1,length(t));
+        ext_sea=gevrnd(obs_kMLE,obs_sigmaMLE,obs_muMLE,1,length(t));  %uses best fit GEV
     else
         np=round(p(3)*198)+1;
-        ext_sea=gevrnd(parms(np,1),parms(np,2),parms(np,3),1,length(t));
+        ext_sea=gevrnd(parms(np,1),parms(np,2),parms(np,3),1,length(t)); %uses GEV parameter uncertainty
     end
    
     
@@ -178,7 +180,7 @@ for a=1:nr_iter
     end
     
     end
-    for aaa=1:nr_par
+    for aaa=1:nr_par   %update simulations with data from the paralell workers
         
         for bb=1:pX
            ssh_reached_joint(ssh_reached_tmp(aaa,1,bb),bb)=ssh_reached_joint(ssh_reached_tmp(aaa,1,bb),bb)+1; 
@@ -189,24 +191,24 @@ for a=1:nr_iter
 
            scen_ssh(ssh_reached_tmp(aaa,1,bb),bb)=scen_ssh(ssh_reached_tmp(aaa,1,bb),bb)+probs_tmp(aaa,1);
            mean_quant_ssh(ssh_reached_tmp(aaa,1,bb),bb)=mean_quant_ssh(ssh_reached_tmp(aaa,1,bb),bb)+probs_tmp(aaa,2);
-           ext_quant_ssh(ssh_reached_tmp(aaa,1,bb),bb)=ext_quant_ssh(ssh_reached_tmp(aaa,1,bb),bb)+probs_tmp(aaa,3);       
+           ext_quant_ssh(ssh_reached_tmp(aaa,1,bb),bb)=ext_quant_ssh(ssh_reached_tmp(aaa,1,bb),bb)+probs_tmp(aaa,3);       %quantiles that gave rise to the sea level
         end
     end
     
 end
 scen_ssh=scen_ssh./ssh_reached_joint;
-mean_quant_ssh=mean_quant_ssh./ssh_reached_joint;
+mean_quant_ssh=mean_quant_ssh./ssh_reached_joint;  %average the quantiles 
 ext_quant_ssh=ext_quant_ssh./ssh_reached_joint;
 
-cdf_ext_only_2150=1-cumsum(ssh_reached_ext_only(:,13))/(nr_iter*nr_par);
+cdf_ext_only_2150=1-cumsum(ssh_reached_ext_only(:,13))/(nr_iter*nr_par); %build CDFs and make into relative frequencies for 2020-2150
 cdf_mean_only_2150=1-cumsum(ssh_reached_mean_only(:,13))/(nr_iter*nr_par);
 cdf_joint_2150=1-cumsum(ssh_reached_joint(:,13))/(nr_iter*nr_par);
 
-cdf_ext_only_2150(cdf_ext_only_2150==0)=nan;
+cdf_ext_only_2150(cdf_ext_only_2150==0)=nan; %remove zeros
 cdf_mean_only_2150(cdf_mean_only_2150==0)=nan;
 cdf_joint_2150(cdf_joint_2150==0)=nan;
 
-cdf_ext_only_2050=1-cumsum(ssh_reached_ext_only(:,3))/(nr_iter*nr_par);
+cdf_ext_only_2050=1-cumsum(ssh_reached_ext_only(:,3))/(nr_iter*nr_par); %other planing periods same operations
 cdf_mean_only_2050=1-cumsum(ssh_reached_mean_only(:,3))/(nr_iter*nr_par);
 cdf_joint_2050=1-cumsum(ssh_reached_joint(:,3))/(nr_iter*nr_par);
 
@@ -228,7 +230,7 @@ ssh_reached_ext(ssh_reached_ext==0)=nan;
 
 for a=1:nr_res
     for b=1:pX
-        mean_of_tot(a,b)=nansum(ssh_reached_mean(a,:,b).*ssh_mean)/nansum(ssh_reached_mean(a,:,b));
+        mean_of_tot(a,b)=nansum(ssh_reached_mean(a,:,b).*ssh_mean)/nansum(ssh_reached_mean(a,:,b));  %mean and extreme contributions to joint sea level
         ext_of_tot(a,b)=nansum(ssh_reached_ext(a,:,b).*ssh_ext)/nansum(ssh_reached_ext(a,:,b));
         
     end

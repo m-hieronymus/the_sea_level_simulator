@@ -1,5 +1,5 @@
 clear all;close all
-load example
+load example   %example is save by emulator_par_ringhals.m
 
 set(0,'DefaultAxesFontSize',12) 
 set(0,'defaultlinelinewidth',2)
@@ -7,7 +7,7 @@ set(0,'defaultlinemarkersize',8)
 figure;
  ha = tight_subplot(3,1,[.06 .06],[.08 .06],[.07 .07]);
  set(gcf,'Units','normalized');
- set(gcf,'Position',[0 0 0.7 0.8]);
+ set(gcf,'Position',[0 0 0.7 0.8]);   %plot of the planning period probabilities 2020-2150 for joint, mean and extreme sea levels
  axes(ha(1))
 semilogy(ssh_joint,cdf_joint_2050,ssh_joint,cdf_joint_2100,ssh_joint,cdf_joint_2150);axis tight
 title('sea level [mean+extreme]')
@@ -30,7 +30,7 @@ ylabel('frequency')
 figure;
  ha = tight_subplot(3,1,[.09 .06],[.08 .06],[.07 .07]);
  set(gcf,'Units','normalized');
- set(gcf,'Position',[0 0 0.7 0.8]);
+ set(gcf,'Position',[0 0 0.7 0.8]);   %plot of the planning period probabilities 2020-2050 for joint, mean and extreme sea levels
  axes(ha(1))
 plot(ssh_joint,scen_ssh(:,3),'o',ssh_joint,mean_quant_ssh(:,3),'+',ssh_joint,ext_quant_ssh(:,3),'p');axis tight
 title('factors controlling sea level maximum [2020-2050]')
@@ -55,7 +55,7 @@ figure;
  set(gcf,'Units','normalized');
  set(gcf,'Position',[0 0 0.7 0.8]);
  axes(ha(1))
- surf(ssh_joint,ssh_ext,ssh_reached_ext(:,:,13)'./(nr_iter*nr_par));view(2);colorbar;hold on
+ surf(ssh_joint,ssh_ext,ssh_reached_ext(:,:,13)'./(nr_iter*nr_par));view(2);colorbar;hold on %plot the spread and the mean contribution of extremes to joint sea level
 p1=plot(ssh_joint,ext_of_tot(:,13),'r');
 p1.ZData=ones(1,nr_res)*1000;
 p1.LineWidth=3;
@@ -68,7 +68,8 @@ set( titleHandle , 'position' , pos1 );
 xlabel('sea level mean+extreme [m]')
 ylabel('sea level extreme contribution [m]')
 axes(ha(2))
-surf(ssh_joint,ssh_mean,ssh_reached_mean(:,:,13)'./(nr_iter*nr_par));view(2);colorbar;hold on
+surf(ssh_joint,ssh_mean,ssh_reached_mean(:,:,13)'./(nr_iter*nr_par));view(2);colorbar;hold on %plot the spread and the mean contribution of mean sea level rise to joint sea level
+p1=plot(ssh_joint,ext_of_tot(:,13),'r');
 p1=plot(ssh_joint,mean_of_tot(:,13),'r');
 p1.ZData=ones(1,nr_res)*1000;
 p1.LineWidth=3;
@@ -81,13 +82,13 @@ set( titleHandle , 'position' , pos1 );
 xlabel('sea level mean+extreme [m]')
 ylabel('sea level mean contribution [m]')
 axes(ha(4))
-plot(ssh_joint,mean_of_tot(:,3),ssh_joint,mean_of_tot(:,8),ssh_joint,mean_of_tot(:,13));axis tight
+plot(ssh_joint,mean_of_tot(:,3),ssh_joint,mean_of_tot(:,8),ssh_joint,mean_of_tot(:,13));axis tight %plot of mean of mean sea level contribution to joint sea level maximum
 title('sea level [mean part]')
 legend('2020-2050','2020-2100','2020-2150','location','best')
 xlabel('sea level maximum within planning period [m]')
 ylabel('average mean contribution [m]')
 axes(ha(3))
-plot(ssh_joint,ext_of_tot(:,3),ssh_joint,ext_of_tot(:,8),ssh_joint,ext_of_tot(:,13));axis tight
+plot(ssh_joint,ext_of_tot(:,3),ssh_joint,ext_of_tot(:,8),ssh_joint,ext_of_tot(:,13));axis tight  %plot of mean of extreme sea level contribution to joint sea level maximum
 title('sea level [extreme part]')
 legend('2020-2050','2020-2100','2020-2150','location','best')
 xlabel('sea level maximum within planning period [m]')
